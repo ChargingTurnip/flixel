@@ -23,6 +23,12 @@ class FlxBaseTilemap<Tile:FlxObject> extends FlxObject
 	 */
 	public var auto:FlxTilemapAutoTiling = OFF;
 
+	/**
+	 * Set this to determine if the auto-tiler should connect tiles to a specified edge of the tilemap.
+	 * Ignored if AutoTile is not set.
+	 */
+	public var autoTileConnectEdges = {left: true, right: true, up: true, down: true};
+
 	static var offsetAutoTile:Array<Int> = [
 		 0,   0, 0, 0,  2,   2, 0,   3, 0, 0, 0, 0,  0,   0, 0,   0,
 		11,  11, 0, 0, 13,  13, 0,  14, 0, 0, 0, 0, 18,  18, 0,  19,
@@ -658,22 +664,22 @@ class FlxBaseTilemap<Tile:FlxObject> extends FlxObject
 		_data[index] = 0;
 
 		// UP
-		if ((index - widthInTiles < 0) || (_data[index - widthInTiles] > 0))
+		if (((index - widthInTiles < 0) && autoTileConnectEdges.up) || (_data[index - widthInTiles] > 0))
 		{
 			_data[index] += 1;
 		}
 		// RIGHT
-		if ((index % widthInTiles >= widthInTiles - 1) || (_data[index + 1] > 0))
+		if (((index % widthInTiles >= widthInTiles - 1) && autoTileConnectEdges.right) || (_data[index + 1] > 0))
 		{
 			_data[index] += 2;
 		}
 		// DOWN
-		if ((Std.int(index + widthInTiles) >= totalTiles) || (_data[index + widthInTiles] > 0))
+		if (((Std.int(index + widthInTiles) >= totalTiles) && autoTileConnectEdges.down) || (_data[index + widthInTiles] > 0))
 		{
 			_data[index] += 4;
 		}
 		// LEFT
-		if ((index % widthInTiles <= 0) || (_data[index - 1] > 0))
+		if (((index % widthInTiles <= 0) && autoTileConnectEdges.left) || (_data[index - 1] > 0))
 		{
 			_data[index] += 8;
 		}
@@ -717,10 +723,10 @@ class FlxBaseTilemap<Tile:FlxObject> extends FlxObject
 	{
 		_data[index] = 0;
 
-		var wallUp:Bool = index - widthInTiles < 0;
-		var wallRight:Bool = index % widthInTiles >= widthInTiles - 1;
-		var wallDown:Bool = Std.int(index + widthInTiles) >= totalTiles;
-		var wallLeft:Bool = index % widthInTiles <= 0;
+		var wallUp:Bool = index - widthInTiles < 0 && autoTileConnectEdges.up;
+		var wallRight:Bool = index % widthInTiles >= widthInTiles - 1 && autoTileConnectEdges.right;
+		var wallDown:Bool = Std.int(index + widthInTiles) >= totalTiles && autoTileConnectEdges.down;
+		var wallLeft:Bool = index % widthInTiles <= 0 && autoTileConnectEdges.left;
 
 		var up = wallUp || _data[index - widthInTiles] > 0;
 		var upRight = wallUp || wallRight || _data[index - widthInTiles + 1] > 0;
